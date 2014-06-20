@@ -6,7 +6,7 @@
     <string name="count">已选中0项</string>
     <string name="selectall">全选</string>
     <string name="abselect">反选</string>
-    <string name="kill">force stop</string>
+    <string name="kill">kill</string>
     <string name="action_help">help</string>
     <string name="action_about">about</string>
     <string name="action_settings">setting</string>

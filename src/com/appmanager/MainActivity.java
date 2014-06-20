@@ -16,14 +16,15 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import android.widget.AdapterView.OnItemClickListener;
 
@@ -32,6 +33,8 @@ public class MainActivity extends Activity implements
 
 	private AlertDialog mDialog = null;
 	private AppAdapter appAdapter;
+	private ProgressBar mPb;
+	private Button mKill;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -50,6 +53,10 @@ public class MainActivity extends Activity implements
 		AppManager application = (AppManager) getApplication();
 		appAdapter = new AppAdapter(MainActivity.this, application.getRunningAppInfos(MainActivity.this, AppManager.SHOW), R.layout.listviewitem);
 		ListView appListView = (ListView) findViewById(R.id.app_list);
+		mKill = (Button) findViewById(R.id.kill);
+		mKill.setText(getResources().getString(R.string.kill));
+		mPb = (ProgressBar) findViewById(R.id.pb);
+		mPb.setVisibility(View.INVISIBLE);
 		appListView.setAdapter(appAdapter);
 		appListView.setOnItemClickListener(this);
 		selectAll(true);
@@ -155,42 +162,49 @@ public class MainActivity extends Activity implements
 	}
 	
 	private void forceStopByShell() {
-		Set<Entry<String, Boolean>> entrySet = appAdapter.isSelected.entrySet();
-		final Iterator<Entry<String, Boolean>> iterator = entrySet.iterator();
-		final String mPackageName = getPackageName();
 		
-		while (iterator.hasNext()) {
-			Entry<String, Boolean> entry = (Entry<String, Boolean>) iterator.next();
-			if (entry.getValue()) {
-				final String packageName = entry.getKey();
-				if(!packageName.equals(mPackageName)) {
-					new AsyncTask<Void, Integer, String>() {
-						
-						@Override
-						protected String doInBackground(Void... params) {
-							commandLine(packageName);
-							try {
-								Thread.sleep(4000);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-							return packageName;
-						}
+		new AsyncTask<Void, Integer, ArrayList<String>>() {
 			
-						@Override
-						protected void onPostExecute(String packageName) {
-							if(packageName != null && !iterator.hasNext()) {
-						        Toast.makeText(MainActivity.this, "Kill " + packageName, Toast.LENGTH_SHORT).show();
-						        relodData();
-							}
-							
+			@Override
+			protected ArrayList<String> doInBackground(Void... params) {
+				
+				Set<Entry<String, Boolean>> entrySet = appAdapter.isSelected.entrySet();
+				Iterator<Entry<String, Boolean>> iterator = entrySet.iterator();
+				String mPackageName = getPackageName();
+				ArrayList<String> packageNames = new ArrayList<String>();
+				while (iterator.hasNext()) {
+					Entry<String, Boolean> entry = (Entry<String, Boolean>) iterator.next();
+					if (entry.getValue()) {
+						final String packageName = entry.getKey();
+						if(!packageName.equals(mPackageName)) {
+							commandLine(packageName);
+							packageNames.add(packageName);
 						}
-			    		
-			    	}.execute();
+					}
 				}
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				return packageNames;
 			}
 			
-		}
+			@Override
+			protected void onPreExecute() {
+				mPb.setVisibility(View.VISIBLE);
+				mKill.setEnabled(false);
+			}
+
+			@Override
+			protected void onPostExecute(ArrayList<String> packageNames) {
+				for(String packageName : packageNames){
+					Toast.makeText(MainActivity.this, "Kill " + packageName, Toast.LENGTH_SHORT).show();
+				}
+			    relodData();
+			}
+    		
+    	}.execute();
 	}
 	
 	private void commandLine(String packageName) {

@@ -17,11 +17,24 @@
         android:scrollbarStyle="outsideInset"
         android:scrollingCache="false" />
 
-    <Button
-        android:id="@+id/kill"
+    <FrameLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:onClick="onClick"
-        android:text="@string/kill" />
+        android:layout_height="wrap_content" >
+
+        <Button
+            android:id="@+id/kill"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:onClick="onClick"
+            android:text="@string/kill" />
+
+        <ProgressBar
+            android:id="@+id/pb"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:visibility="invisible"/>
+    </FrameLayout>
 
 </LinearLayout>
