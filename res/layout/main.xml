@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <ListView
+        android:id="@+id/app_list"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1.0"
+        android:animationCache="true"
+        android:divider="@android:color/black"
+        android:fadingEdge="none"
+        android:fastScrollEnabled="true"
+        android:layoutAnimation="@anim/animationlayout"
+        android:scrollbarStyle="outsideInset"
+        android:scrollingCache="false" />
+
+    <Button
+        android:id="@+id/kill"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onClick"
+        android:text="@string/kill" />
+
+</LinearLayout>
