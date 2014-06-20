@@ -178,8 +178,8 @@ public class MainActivity extends Activity implements
 						final String packageName = entry.getKey();
 						if(!packageName.equals(mPackageName)) {
 							commandLine(packageName);
-							packageNames.add(packageName);
 						}
+						packageNames.add(packageName);
 					}
 				}
 				try {
@@ -198,10 +198,20 @@ public class MainActivity extends Activity implements
 
 			@Override
 			protected void onPostExecute(ArrayList<String> packageNames) {
+				String mPackageName = getPackageName();
+				boolean killSelf = false;
 				for(String packageName : packageNames){
 					Toast.makeText(MainActivity.this, "Kill " + packageName, Toast.LENGTH_SHORT).show();
+					if(packageName.equals(mPackageName)) {
+						killSelf = true;
+					}
 				}
-			    relodData();
+				
+				if(killSelf) {
+					finish();
+				}else {
+					relodData();
+				}
 			}
     		
     	}.execute();
