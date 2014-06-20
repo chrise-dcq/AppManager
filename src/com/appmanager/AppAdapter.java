@@ -1,7 +1,7 @@
 package com.appmanager;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -15,19 +15,19 @@ import android.widget.TextView;
 
 public class AppAdapter extends BaseAdapter {
 
-	private ArrayList<AppInfo> appInfos;
+	private List<AppInfo> appInfos;
 	private LayoutInflater inflater;
 	private int itemResource;
 	public HashMap<String, Boolean> isSelected;
 
-	public AppAdapter(Context context, ArrayList<AppInfo> appInfos, int resource) {
+	public AppAdapter(Context context, List<AppInfo> appInfos, int resource) {
 		this.appInfos = appInfos;
 		this.itemResource = resource;
 		inflater = LayoutInflater.from(context);
 		isSelected = new HashMap<String, Boolean>();
 	}
 
-	public ArrayList<AppInfo> getInfos() {
+	public List<AppInfo> getInfos() {
 		return appInfos;
 	}
 	
@@ -36,11 +36,9 @@ public class AppAdapter extends BaseAdapter {
 	 * 
 	 * @param appInfos
 	 */
-	public void updateData(ArrayList<AppInfo> appInfos) {
+	public void updateData(List<AppInfo> appInfos) {
 		this.appInfos = appInfos;
-		isSelected.clear();
-//		selectAll(false);
-		notifyDataSetChanged();
+		notifyDataSetInvalidated();
 	}
 
 	@Override

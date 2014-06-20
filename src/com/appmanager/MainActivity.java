@@ -14,7 +14,9 @@ import com.appmanager.AppAdapter.ViewCache;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,19 +37,22 @@ public class MainActivity extends Activity implements
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getOverflowMenu();
-		setContentView(R.layout.main);
 	}
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
+		relodData();
+	}
+
+	private void relodData() {
+		setContentView(R.layout.main);
 		AppManager application = (AppManager) getApplication();
 		appAdapter = new AppAdapter(MainActivity.this, application.getRunningAppInfos(MainActivity.this, AppManager.SHOW), R.layout.listviewitem);
 		ListView appListView = (ListView) findViewById(R.id.app_list);
 		appListView.setAdapter(appAdapter);
 		appListView.setOnItemClickListener(this);
 		selectAll(true);
-		
 	}
 
 
@@ -136,7 +141,6 @@ public class MainActivity extends Activity implements
 		default:
 			break;
 		}
-		appAdapter.notifyDataSetChanged();
 	}
 
 	/**
@@ -152,26 +156,40 @@ public class MainActivity extends Activity implements
 	
 	private void forceStopByShell() {
 		Set<Entry<String, Boolean>> entrySet = appAdapter.isSelected.entrySet();
-		Iterator<Entry<String, Boolean>> iterator = entrySet.iterator();
-		boolean kill_self = false;
-		String mPackageName = getPackageName();
+		final Iterator<Entry<String, Boolean>> iterator = entrySet.iterator();
+		final String mPackageName = getPackageName();
+		
 		while (iterator.hasNext()) {
 			Entry<String, Boolean> entry = (Entry<String, Boolean>) iterator.next();
 			if (entry.getValue()) {
-				String packageName = entry.getKey();
-				if(packageName.equals(mPackageName)) {
-					kill_self = true;
-				}else {
-					commandLine(packageName);
+				final String packageName = entry.getKey();
+				if(!packageName.equals(mPackageName)) {
+					new AsyncTask<Void, Integer, String>() {
+						
+						@Override
+						protected String doInBackground(Void... params) {
+							commandLine(packageName);
+							try {
+								Thread.sleep(4000);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+							return packageName;
+						}
+			
+						@Override
+						protected void onPostExecute(String packageName) {
+							if(packageName != null && !iterator.hasNext()) {
+						        Toast.makeText(MainActivity.this, "Kill " + packageName, Toast.LENGTH_SHORT).show();
+						        relodData();
+							}
+							
+						}
+			    		
+			    	}.execute();
 				}
 			}
-		}
-		
-		if(kill_self) {
-			commandLine(mPackageName);
-		}else {
-			AppManager application = (AppManager) getApplication();
-			appAdapter.updateData(application.getRunningAppInfos(MainActivity.this, AppManager.SHOW));//更新数据
+			
 		}
 	}
 	
@@ -188,10 +206,6 @@ public class MainActivity extends Activity implements
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-        
-        Toast.makeText(MainActivity.this,
-				"Kill " + packageName,
-				Toast.LENGTH_SHORT).show();
 	}
 
 }

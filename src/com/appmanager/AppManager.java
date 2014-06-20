@@ -1,6 +1,7 @@
 package com.appmanager;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.appmanager.AppAdapter.AppInfo;
@@ -34,14 +35,15 @@ public class AppManager extends Application {
 	 * 
 	 * @return
 	 */
-	public ArrayList<AppInfo> getRunningAppInfos(Activity act, int type) {
+	public List<AppInfo> getRunningAppInfos(Activity act, int type) {
 		ActivityManager mActivityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
 		PackageManager pm = getPackageManager();
 		List<ApplicationInfo> appList = pm.getInstalledApplications(PackageManager.GET_UNINSTALLED_PACKAGES);
 		// 正在运行的进程
 		List<RunningAppProcessInfo> runningAppProcessInfos = mActivityManager.getRunningAppProcesses();
 		// 正在运行的应用
-		ArrayList<AppInfo> runningApps = new ArrayList<AppInfo>(runningAppProcessInfos.size());
+		
+		List<AppInfo> runningApps = new ArrayList<AppInfo>(runningAppProcessInfos.size());
 		for (RunningAppProcessInfo runningAppInfo : runningAppProcessInfos) {
 			
 			ArrayList<ApplicationInfo> infos = getAppInfo(runningAppInfo.pkgList, appList);
@@ -85,7 +87,7 @@ public class AppManager extends Application {
 		return new BitmapDrawable(getResources(), bm);
 	}
 	
-	private boolean containInfo(ArrayList<AppInfo> infos, AppInfo info) {
+	private boolean containInfo(List<AppInfo> infos, AppInfo info) {
 		for(AppInfo af: infos) {
 			if(af.packageName.equals(info.packageName)) {
 				return true;
