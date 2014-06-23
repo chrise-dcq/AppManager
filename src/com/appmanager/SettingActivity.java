@@ -6,6 +6,7 @@ import com.appmanager.AppAdapter.ViewCache;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -28,6 +29,19 @@ public class SettingActivity extends Activity implements
 		appListView.setAdapter(appAdapter);
 		appListView.setOnItemClickListener(this);
 		getActionBar().setIcon(R.drawable.setting);
+		getActionBar().setHomeButtonEnabled(true);
+		getActionBar().setDisplayHomeAsUpEnabled(true);
+	}
+	
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) 
+		   {        
+		      case android.R.id.home:            
+		         finish();       
+		         return true;        
+		      default:            
+		         return super.onOptionsItemSelected(item);    
+		   }
 	}
 	
 	/**
