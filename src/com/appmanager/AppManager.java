@@ -1,7 +1,8 @@
 package com.appmanager;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.appmanager.AppAdapter.AppInfo;
@@ -9,6 +10,7 @@ import com.appmanager.AppAdapter.AppInfo;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.Application;
+import android.app.ActivityManager.RecentTaskInfo;
 import android.app.ActivityManager.RunningAppProcessInfo;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -17,6 +19,7 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 
 public class AppManager extends Application {
 	
@@ -96,30 +99,33 @@ public class AppManager extends Application {
 		return false;
 	}
 	
-	public ArrayList<AppInfo> getAllAppInfos(Activity act, int type) {
-		PackageManager pm = getPackageManager();
-		List<ApplicationInfo> appList = pm.getInstalledApplications(PackageManager.GET_UNINSTALLED_PACKAGES);
-		ArrayList<AppInfo> runningApps = new ArrayList<AppInfo>(50);
-		for (ApplicationInfo applicationInfo : appList) {
-			if(applicationInfo != null && !isSystemApp(applicationInfo)) {
-				AppInfo info = new AppInfo();
-				info.packageName = applicationInfo.processName;
-				info.appIcon = applicationInfo.loadIcon(pm);
-				info.appName = applicationInfo.loadLabel(pm).toString();
-				if(type == ALL) {
-					runningApps.add(info);
-				}else if(type == SHOW) {
-					boolean show = act.getSharedPreferences(SETTING, MODE_PRIVATE).getBoolean(info.packageName, true);//默认都显示
-					if(show) {
-						runningApps.add(info);
-					}
-				}
-			}
+	public void getRecentTask() {
+		ActivityManager mActivityManager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+		List<RecentTaskInfo> task = mActivityManager.getRecentTasks(Integer.MAX_VALUE, ActivityManager.RECENT_IGNORE_UNAVAILABLE);
+		for(RecentTaskInfo info : task) {
+			Log.i("peter", info.baseIntent.getComponent().getPackageName());
+			invokeMethod("removeTask", mActivityManager, new Class[]{int.class, int.class}, new Object[]{info.id, 1});
 		}
-		return runningApps;
 	}
 	
-	
+    public void  invokeMethod(String MethodName,Object o, Class<?>[] c, Object []paras){
+       try {
+           Method method=o.getClass().getDeclaredMethod(MethodName,c);
+           try {
+               method.invoke(o,paras);//调用o对象的方法
+           } catch (IllegalAccessException e) {
+        	   e.printStackTrace();
+           } catch (IllegalArgumentException e) {
+        	   e.printStackTrace();
+           } catch (InvocationTargetException e) {
+        	   e.printStackTrace();
+           }
+       } catch (NoSuchMethodException e) {
+    	   e.printStackTrace();
+       } catch (SecurityException e) {
+    	   e.printStackTrace();
+       }
+   }
 	
 	private boolean isSystemApp(ApplicationInfo appInfo) {
 		if ((appInfo.flags & ApplicationInfo.FLAG_SYSTEM) > 0 ) {//system apps

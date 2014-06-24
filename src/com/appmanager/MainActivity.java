@@ -86,6 +86,8 @@ public class MainActivity extends Activity implements
         	mDialog.show();
         	break;
         case R.id.action_feedback:
+        	AppManager application = (AppManager) getApplication();
+        	application.getRecentTask();
         	break;
         case R.id.action_settings:
         	startActivity(new Intent(MainActivity.this, SettingActivity.class));
@@ -177,13 +179,14 @@ public class MainActivity extends Activity implements
 					if (entry.getValue()) {
 						final String packageName = entry.getKey();
 						if(!packageName.equals(mPackageName)) {
-							commandLine(packageName);
+							commandLineForceStop(packageName);
 						}
 						packageNames.add(packageName);
 					}
 				}
+				commandLineKillAll();
 				try {
-					Thread.sleep(5000);
+					Thread.sleep(3000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -217,7 +220,7 @@ public class MainActivity extends Activity implements
     	}.execute();
 	}
 	
-	private void commandLine(String packageName) {
+	private void commandLineForceStop(String packageName) {
 		List<String> commands = new ArrayList<String>();
 		commands.add("su");
         commands.add("|");
@@ -230,6 +233,21 @@ public class MainActivity extends Activity implements
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void commandLineKillAll() {
+		List<String> commands = new ArrayList<String>();
+		commands.add("su");
+        commands.add("|");
+        commands.add("am");
+        commands.add("kill-all");
+        ProcessBuilder pb = new ProcessBuilder(commands);
+        try {
+        	pb.start();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 	}
 
 }
