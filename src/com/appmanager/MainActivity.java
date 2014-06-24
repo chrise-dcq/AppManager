@@ -84,6 +84,8 @@ public class MainActivity extends Activity implements
         	mDialog.setTitle(getResources().getString(R.string.action_about));
         	mDialog.setMessage(getResources().getString(R.string.action_about_msg));
         	mDialog.show();
+        	
+        	AppManager.isApplicationBroughtToBackground(MainActivity.this);
         	break;
         case R.id.action_feedback:
         	AppManager application = (AppManager) getApplication();

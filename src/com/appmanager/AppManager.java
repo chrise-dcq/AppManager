@@ -9,9 +9,11 @@ import com.appmanager.AppAdapter.AppInfo;
 
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.ActivityManager.RunningTaskInfo;
 import android.app.Application;
 import android.app.ActivityManager.RecentTaskInfo;
 import android.app.ActivityManager.RunningAppProcessInfo;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -75,6 +77,23 @@ public class AppManager extends Application {
 		}
 		return runningApps;
 	}
+	
+
+/**
+     *判断当前应用程序处于前台还是后台
+     */
+    public static boolean isApplicationBroughtToBackground(final Context context) {
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<RunningTaskInfo> tasks = am.getRunningTasks(1);
+        if (!tasks.isEmpty()) {
+            ComponentName topActivity = tasks.get(0).topActivity;
+            if (!topActivity.getPackageName().equals(context.getPackageName())) {
+                return true;
+            }
+        }
+        return false;  
+     }
+ 
 	
 	private Drawable getRightSizeIcon(BitmapDrawable drawable) {
 		Drawable rightDrawable = getResources().getDrawable(R.drawable.session_manager);
